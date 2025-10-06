@@ -5,6 +5,6 @@ export const userSchemaValidation = yup.object().shape({
   password: yup.string().min(4).max(20).required("Password is required."),
   confirmpassword: yup
     .string()
-    .yup.ref("password", "Password does not match.")
+    .oneOf([yup.ref("password"), null], "Password does not match.")
     .required("Confirm Password is required."),
 });
