@@ -1,8 +1,8 @@
 const About = () => {
   return (
-    <>
-      <p> &copy; Malak al-Jabri @ 16j21113,</p>
-    </>
+    <div>
+      <h2>Jasmine</h2>
+    </div>
   );
 };
 
