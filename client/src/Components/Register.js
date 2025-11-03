@@ -3,7 +3,7 @@ import * as yup from "yup";
 import { registerUser } from "../Features/UserSlice"; 
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   Button,
@@ -42,6 +42,7 @@ const Register = () => {
 
   // Handle form submission
   const dispatch = useDispatch();
+  const navigate= useNavigate();
 
   const onSubmit = (data) => {
     try {
@@ -53,6 +54,7 @@ const Register = () => {
         password: data.password,
       };
       dispatch(registerUser(userData));
+      navigate("/login"); //redirect to login component
       console.log("Added Successfully.")
     } catch (error) {
       console.log(error);
