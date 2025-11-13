@@ -3,6 +3,7 @@ import cors from "cors";
 import express from "express";
 import UserModel from "./Models/UserModel.js";
 import bcrypt from "bcrypt";
+import PostModel from "./Models/PostModel.js";
 
 const app = express();
 app.use(express.json());
@@ -18,19 +19,15 @@ mongoose.connect(connectString, {
   useUnifiedTopology: true,
 });
 
-
-
 //POST API for register user
 app.post("/registerUser", async (req, res) => {
   try {
-    // const name = req.body.name;
-    // const email = req.body.email;
-    // const password = req.body.password;
-const {name, email, password}= req.body; 
+    const name = req.body.name;
+    const email = req.body.email;
+    const password = req.body.password;
     const hashedpassword = await bcrypt.hash(password, 10);
-
     const user = new UserModel({
-      name,
+      name: name,
       email,
       password: hashedpassword,
     });
@@ -38,35 +35,72 @@ const {name, email, password}= req.body;
     await user.save();
     res.send({ user: user, msg: "Added." });
   } catch (error) {
-    //res.status(500).json({ error: "An error occurred" });
+    res.status(500).json({ error: "An error occurred." });
     console.log(error);
   }
 });
 
-//POST API for login
 app.post("/login", async (req, res) => {
-    try {
-      const { email, password } = req.body; //using destructuring
-      //search the user
-      const user = await UserModel.findOne({ email: email });
-
-      //if not found
-      if (!user) {
-        return res.status(500).json({ error: "User not found." });
-      }
-      console.log(user);
-      const passwordMatch = await bcrypt.compare(password, user.password);
-      if (!passwordMatch) {
-        return res.status(401).json({ error: "Authentication failed" });
-      }
-
-      //if everything is ok, send the user and message
-      res.status(200).json({ user, message: "Success." });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+  try {
+    const { email, password } = req.body; //using destructuring
+    //search the user
+    const user = await UserModel.findOne({ email: email });
+    //if not found
+    if (!user) {
+      return res.status(500).json({ error: "User not found." });
     }
+
+    console.log(user);
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ error: "Authentication failed" });
+    }
+
+    //if everything is ok, send the user and message
+    res.status(200).json({ user, message: "Success." });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+//POST API - savePost
+app.post("/savePost", async (req, res) => {
+
+    try {
+          const { postMsg, email } = req.body;
+      // const postMsg = req.body.postMsg;
+      // const email = req.body.email;
+      const post = new PostModel({
+        postMsg,
+        email,
+      });
+
+      await post.save();
+      res.send({ post: post, msg: "Added." });
+    } catch (error) {
+      res.status(500).json({ error: "An error occurred" });
+    }
+
   });
 
+  //GET API - getPost
+  app.get("/getposts", async(req, res)=>{
+    try{
+      const posts = await PostModel.find({}).sort({ createdAt: -1 });
+      const countPost = await PostModel.countDocuments({});
+       res.send({ posts: posts, count: countPost });
+    }catch(error){
+      console.log(error);
+      res.status(500).json({ error: "An error occurred." });
+    }
+  })
+
+
+//POST API-logout
+app.post("/logout", async (req, res) => {
+  res.status(200).json({ message: "Logged out successfully" });
+});
+
 app.listen(3001, () => {
-  console.log("You are connected.");
+  console.log("You are connected");
 });

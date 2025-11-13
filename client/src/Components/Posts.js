@@ -1,9 +1,39 @@
-
+import { useSelector, useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getPosts } from "../Features/PostSlice";
+import { Table } from "reactstrap";
+import moment from "moment";
 
 const Posts = () => {
+  //needed vars
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const posts = useSelector((state) => state.posts.posts);
+  const email = useSelector((state) => state.users.user.email);
+  useEffect(() => {
+        dispatch(getPosts());
+      }, []);
   return (
     <div className="postsContainer">
-      <h1>Display Posts</h1>
+      <Table className="table table-striped">
+        <thead> <h1>Display Posts</h1></thead>
+        <tbody>
+          {posts.map((post) => (
+            <tr key={post._id}>
+              {/* Ensure to add a unique key for each row */}
+              <td>{post.email}</td>
+              <td>
+                <p>{moment(post.createdAt).fromNow()}</p>
+                {post.postMsg}
+              </td>
+            </tr>
+
+          ))}
+
+        </tbody>
+
+      </Table>
     </div> /* End of posts */
   );
 };
